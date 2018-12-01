@@ -26,17 +26,13 @@
     #July 29, 2016 — 2.5% errors
 import psycopg2
 
-print('hey there')
-
-#db_name = "news"
-
 def most_popular_articles():
     db = psycopg2.connect("dbname=news")
     c = db.cursor()
     c.execute("select articles.title, substring(path, 10) as url, count(*) as views from log join articles on substring(path, 10)=articles.slug where substring(path, 10) > '' group by articles.title, path order by views desc limit 3;")
     most_read_articles = c.fetchall()
     db.close()
-    print(most_read_articles)
+    print("Top 3 Articles of All Time:")
     print('"' + most_read_articles[0][0] + '"' + ' - ' + str(most_read_articles[0][2]) + ' views')
     print('"' + most_read_articles[1][0] + '"' + ' - ' + str(most_read_articles[1][2]) + ' views')
     print('"' + most_read_articles[2][0] + '"' + ' - ' + str(most_read_articles[2][2]) + ' views')
