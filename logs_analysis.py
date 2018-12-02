@@ -33,13 +33,25 @@ def most_popular_articles():
     most_read_articles = c.fetchall()
     db.close()
     print("Top 3 Articles of All Time:")
-    print('"' + most_read_articles[0][0] + '"' + ' - ' + str(most_read_articles[0][2]) + ' views')
-    print('"' + most_read_articles[1][0] + '"' + ' - ' + str(most_read_articles[1][2]) + ' views')
-    print('"' + most_read_articles[2][0] + '"' + ' - ' + str(most_read_articles[2][2]) + ' views')
+    for x in most_read_articles:
+        print(x[0] + ' - ' + str(x[2]) + ' views')
     return most_read_articles
 
 most_popular_articles()
 
-#def most_popular_authors():
+print(' ')
+
+def most_popular_author():
+    db = psycopg2.connect("dbname=news")
+    c = db.cursor()
+    c.execute("select authors.name, count(authors.name) as reads from articles inner join authors on articles.author=authors.id inner join log on articles.slug=substring(log.path, 10) where substring(log.path, 10) > '' group by name order by reads desc;")
+    total_read_articles = c.fetchall()
+    db.close()
+    print("Most Popular Author:")
+    for x in total_read_articles:
+        print(x[0] + ' - ' + str(x[1]) + ' views')
+    return total_read_articles
+
+most_popular_author()
 
 #def least_amount_of_errors():
