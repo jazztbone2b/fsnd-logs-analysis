@@ -16,9 +16,9 @@ Once the database is connected, run the program by typing the following command 
 
 <h2>Questions to be answered:</h2>
 
-<h3><li>What are the three most popular articles of all time?</li>
+<li>What are the three most popular articles of all time?</li>
 <li>Who are the most popular article authors of all time?</li>
-<li>On which days did more than 1% of requests lead to errors?</li></h3>
+<li>On which days did more than 1% of requests lead to errors?</li>
 
 ---
 Note: 
