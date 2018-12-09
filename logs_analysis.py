@@ -1,4 +1,5 @@
 # This Python file uses the following encoding: utf-8
+# Coded by Collin Banks for the Udacity Full Stack Nanodegree
 
 #Create 3 different query functions
 
@@ -19,12 +20,14 @@
     #Markoff Chaney — 1723 views
     #Anonymous Contributor — 1023 views
 
-#3. On which days did more than 1% of requests lead to errors? The log table includes a column status that indicates the HTTP status code that the news site sent to the user's browser. (Refer to this lesson for more information about the idea of HTTP status codes.)
+#3. On which days did more than 1% of requests lead to errors? The log table includes a column status that indicates the HTTP status code that the news site sent to the user's browser. 
 
     #Example:
 
     #July 29, 2016 — 2.5% errors
+
 import psycopg2
+import calendar
 
 def most_popular_articles():
     db = psycopg2.connect("dbname=news")
@@ -54,4 +57,23 @@ def most_popular_author():
 
 most_popular_author()
 
-#def least_amount_of_errors():
+print(' ')
+
+def errors():
+    db = psycopg2.connect("dbname=news")
+    c = db.cursor()
+    c.execute("select *, round(((bad_reqs.total_bad_reqs*1.0) / (total_reqs.total)), 3) as percent_failed from (select to_char(log.time, 'YYYY-MM-DD') as date, count(status) as total from log group by date order by date asc) as total_reqs join (select to_char(log.time, 'YYYY-MM-DD') as date, count(status) as total_bad_reqs from log where status = '404 NOT FOUND' group by date order by date asc) as bad_reqs on total_reqs.date = bad_reqs.date where (round(((bad_reqs.total_bad_reqs*1.0) / total_reqs.total), 3) > 0.01);")
+    most_errors = c.fetchall()
+    db.close()
+    print("Days with more than 1 percent of errors:")
+    for x in most_errors:
+        to_date = x[0]
+        year = to_date[0:4]
+        to_month = int(to_date[5:7])
+        day = to_date[8:10]
+        named_month = calendar.month_name[to_month]
+        percent_errors = str(round(x[4] * 100, 2))
+        print(named_month + ' ' + day + ', ' + year + ' - ' + percent_errors + '% errors')
+    return most_errors
+
+errors()
