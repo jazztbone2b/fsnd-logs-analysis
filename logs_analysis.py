@@ -12,12 +12,13 @@ def most_popular_articles():
     db = psycopg2.connect("dbname=news")
     c = db.cursor()
     c.execute("""
-        select articles.title, substring(path, 10) as url, count(*) as views
-        from log
-        join articles on substring(path, 10)=articles.slug
-        where substring(path, 10) > ''
-        group by articles.title, path
-        order by views desc limit 3;
+        SELECT articles.title, substring(path, 10) as url, count(*) as views
+        FROM log
+        JOIN articles ON substring(path, 10)=articles.slug
+        WHERE substring(path, 10) > ''
+        GROUP BY articles.title, path
+        ORDER BY views desc
+        LIMIT 3;
         """)
     most_read_articles = c.fetchall()
     db.close()
@@ -36,13 +37,13 @@ def most_popular_author():
     db = psycopg2.connect("dbname=news")
     c = db.cursor()
     c.execute("""
-        select authors.name, count(authors.name) as reads
-        from articles
-        inner join authors on articles.author=authors.id
-        inner join log on articles.slug=substring(log.path, 10)
-        where substring(log.path, 10) > ''
-        group by name
-        order by reads desc;
+        SELECT authors.name, count(authors.name) as reads
+        FROM articles
+        INNER JOIN authors ON articles.author=authors.id
+        INNER JOIN log ON articles.slug=substring(log.path, 10)
+        WHERE substring(log.path, 10) > ''
+        GROUP BY name
+        ORDER BY reads desc;
         """)
     total_read_articles = c.fetchall()
     db.close()
@@ -61,29 +62,29 @@ def errors():
     db = psycopg2.connect("dbname=news")
     c = db.cursor()
     c.execute("""
-        select *,
-        round(((bad_reqs.total_bad_reqs*1.0) / (total_reqs.total)), 3)
-        as percent_failed
-        from (
+        SELECT *,
+        ROUND(((bad_reqs.total_bad_reqs*1.0) / (total_reqs.total)), 3)
+        AS percent_failed
+        FROM (
             select
             to_char(log.time, 'YYYY-MM-DD') as date,
             count(status) as total
             from log
             group by date
             order by date asc
-        ) as total_reqs
-        join (
-            select
+        ) AS total_reqs
+        JOIN (
+            SELECT
             to_char(log.time, 'YYYY-MM-DD') as date,
             count(status) as total_bad_reqs
-            from log
-            where status != '200 OK'
-            group by date
-            order by date asc
+            FROM log
+            WHERE status != '200 OK'
+            GROUP BY date
+            ORDER BY date asc
         ) as bad_reqs
-        on total_reqs.date = bad_reqs.date
-        where
-        (round(((bad_reqs.total_bad_reqs*1.0) / total_reqs.total), 3) > 0.01);
+        ON total_reqs.date = bad_reqs.date
+        WHERE
+        (ROUND(((bad_reqs.total_bad_reqs*1.0) / total_reqs.total), 3) > 0.01);
         """)
     most_errors = c.fetchall()
     db.close()
